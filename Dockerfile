@@ -10,7 +10,7 @@ COPY . .
 # Build the application for the target architecture
 ARG TARGETOS
 ARG TARGETARCH
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o myapp main.go
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o myapp ./cmd
 
 # Use distroless image to reduce size and improve security
 FROM gcr.io/distroless/base-debian10
