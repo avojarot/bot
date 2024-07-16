@@ -1,6 +1,6 @@
 # Makefile for building on different platforms and architectures
 
-.PHONY: all linux arm macos windows clean
+.PHONY: all linux arm macos windows clean image
 
 # Docker image tag
 IMAGE_TAG=myapp:latest
@@ -19,6 +19,9 @@ macos:
 windows:
 	GOOS=windows GOARCH=amd64 go build -o build/windows/myapp.exe main.go
 
+image:
+	docker build --build-arg TARGETOS=linux --build-arg TARGETARCH=amd64 -t $(IMAGE_TAG) .
+
 clean:
 	rm -rf build
-	docker rmi $(IMAGE_TAG)
+	-@docker rmi $(IMAGE_TAG) || true
