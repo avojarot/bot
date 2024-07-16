@@ -20,7 +20,7 @@ windows:
 	GOOS=windows GOARCH=amd64 go build -o build/windows/myapp.exe ./cmd
 
 image:
-	docker build --build-arg TARGETOS=linux --build-arg TARGETARCH=amd64 -t $(IMAGE_TAG) .
+	docker build --build-arg TARGETOS=$(TARGETOS) --build-arg TARGETARCH=$(TARGETARCH) -t $(IMAGE_TAG) .
 
 clean:
 	rm -rf build
