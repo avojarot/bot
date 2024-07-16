@@ -8,16 +8,16 @@ IMAGE_TAG=myapp:latest
 all: linux arm macos windows
 
 linux:
-	GOOS=linux GOARCH=amd64 go build -o build/linux/myapp main.go
+	GOOS=linux GOARCH=amd64 go build -o build/linux/myapp ./cmd
 
 arm:
-	GOOS=linux GOARCH=arm64 go build -o build/arm/myapp main.go
+	GOOS=linux GOARCH=arm64 go build -o build/arm/myapp ./cmd
 
 macos:
-	GOOS=darwin GOARCH=amd64 go build -o build/macos/myapp main.go
+	GOOS=darwin GOARCH=amd64 go build -o build/macos/myapp ./cmd
 
 windows:
-	GOOS=windows GOARCH=amd64 go build -o build/windows/myapp.exe main.go
+	GOOS=windows GOARCH=amd64 go build -o build/windows/myapp.exe ./cmd
 
 image:
 	docker build --build-arg TARGETOS=linux --build-arg TARGETARCH=amd64 -t $(IMAGE_TAG) .
