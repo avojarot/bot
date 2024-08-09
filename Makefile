@@ -1,27 +1,26 @@
-# Makefile for building on different platforms and architectures
+APP := $(shell basename $(shell git remote get-url origin))
+REGISTRY := denvasyilev
+VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
+TARGETOS=linux #linux darwin windows
+TARGETARCH=amd64 #amd64 arm64
 
-.PHONY: all linux arm macos windows clean image
+format:
+    gofmt -s -w ./
 
-# Docker image tag
-IMAGE_TAG=myapp:latest
+lint:
+    golint
 
-all: linux arm macos windows
+test:
+    go test -v
 
-linux:
-	GOOS=linux GOARCH=amd64 go build -o build/linux/myapp ./cmd
+get:
+    go get
 
-arm:
-	GOOS=linux GOARCH=arm64 go build -o build/arm/myapp ./cmd
-
-macos:
-	GOOS=darwin GOARCH=amd64 go build -o build/macos/myapp ./cmd
-
-windows:
-	GOOS=windows GOARCH=amd64 go build -o build/windows/myapp.exe ./cmd
+build: format get
+    CGO_ENABLED=0 GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) go build -v -o kbot -ldflags "-X=github.com/den-vasyilev/kbot/cmd.appVersion=${VERSION}"
 
 image:
-	docker build --build-arg TARGETOS=$(TARGETOS) --build-arg TARGETARCH=$(TARGETARCH) -t $(IMAGE_TAG) .
+    docker build -t $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH) .
 
 clean:
-	rm -rf build
-	-@docker rmi $(IMAGE_TAG) || true
+    rm -rf kbot
