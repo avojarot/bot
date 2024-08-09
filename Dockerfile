@@ -1,20 +1,12 @@
-# Use an alternative container registry base image
-FROM quay.io/projectquay/golang:1.20
+FROM golang:1.19 as builder
 
-# Set the working directory
-WORKDIR /app
-
-# Copy the source code
+WORKDIR /go/src/app
 COPY . .
+RUN make build
 
-# Build the application for the target architecture
-ARG TARGETOS
-ARG TARGETARCH
-RUN echo "TARGETOS is: $TARGETOS" && echo "TARGETARCH is: $TARGETARCH" \
-    && env \
-    && CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o myapp ./cmd
+FROM scratch
+WORKDIR /
+COPY --from=builder /go/src/app/kbot .
+COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-# Use distroless image to reduce size and improve security
-FROM gcr.io/distroless/base-debian10
-COPY --from=0 /app/myapp /app/myapp
-ENTRYPOINT ["/app/myapp"]
+ENTRYPOINT ["./kbot", "start"]
