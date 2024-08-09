@@ -1,31 +1,27 @@
 APP := $(shell basename $(shell git remote get-url origin))
+REGISTRY := denvasyilev
 VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
+TARGETOS=linux #linux darwin windows
+TARGETARCH=amd64 #amd64 arm64
 
-# Визначення цільових платформ та архітектур
-TARGETOS := linux darwin windows
-TARGETARCH := amd64 arm64
-
-# Стандартний формат, лінт та тестування
 format:
-	gofmt -s -w ./
+    gofmt -s -w ./
 
 lint:
-	golint
+    golint
 
 test:
-	go test -v ./...
+    go test -v
 
-# Функція для збірки під кожну платформу та архітектуру
-define build_target
-$(1)_$(2):
-	GOOS=$(1) GOARCH=$(2) CGO_ENABLED=0 go build -o bin/$(APP)-$(1)-$(2) -ldflags "-X=github.com/$(APP)/cmd.appVersion=${VERSION}" ./...
-endef
+get:
+    go get
 
-# Генерація цілей для кожної комбінації платформи та архітектури
-$(foreach os,$(TARGETOS),$(foreach arch,$(TARGETARCH),$(eval $(call build_target,$(os),$(arch)))))
+build: format get
+    CGO_ENABLED=0 GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) go build -v -o kbot -ldflags "-X=github.com/den-vasyilev/kbot/cmd.appVersion=${VERSION}"
+
+image:
+    docker build -t $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH) .
 
 clean:
-	rm -rf bin
-	docker rmi $(REGISTRY)/$(APP):$(VERSION)-*
-
-.PHONY: format lint test clean $(foreach os,$(TARGETOS),$(foreach arch,$(TARGETARCH),$(os)_$(arch)))
+    rm -rf kbot
+    docker rmi $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)
