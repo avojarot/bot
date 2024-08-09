@@ -1,27 +1,27 @@
 APP := $(shell basename $(shell git remote get-url origin))
 REGISTRY := denvasyilev
 VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
-TARGETOS=linux #linux darwin windows
-TARGETARCH=amd64 #amd64 arm64
+TARGETOS=linux # linux darwin windows
+TARGETARCH=amd64 # amd64 arm64
 
 format:
-    gofmt -s -w ./
+	@gofmt -s -w ./
 
 lint:
-    golint
+	@golint
 
 test:
-    go test -v
+	@go test -v
 
 get:
-    go get
+	@go get
 
 build: format get
-    CGO_ENABLED=0 GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) go build -v -o kbot -ldflags "-X=github.com/den-vasyilev/kbot/cmd.appVersion=${VERSION}"
+	@CGO_ENABLED=0 GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) go build -v -o kbot -ldflags "-X=github.com/den-vasyilev/kbot/cmd.appVersion=${VERSION}"
 
 image:
-    docker build -t $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH) .
+	@docker build -t $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH) .
 
 clean:
-    rm -rf kbot
-    docker rmi $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)
+	@rm -rf kbot
+	@docker rmi $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)
