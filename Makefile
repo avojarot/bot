@@ -1,24 +1,30 @@
-APP := $(shell basename $(shell git remote get-url origin))
+APP = $(shell basename $(shell git remote get-url origin))
 REGISTRY := avojarot
-VERSION=$(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")-$(shell git rev-parse --short HEAD)
-TARGETOS=linux # linux darwin windows
-TARGETARCH=amd64 # amd64 arm64
+VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)
+TARGETOS=linux #linux darwin windows
+TARGETARCH=arm64 #amd64 arm64
 
 format:
-	@gofmt -s -w ./
+	gofmt -s -w ./
 
 lint:
-	@golint
+	golint
 
 test:
-	@go test -v
+	go test -v
 
-build: format
-	@CGO_ENABLED=0 GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) go build -v -o kbot -ldflags "-X=github.com/den-vasyilev/kbot/cmd.appVersion=${VERSION}"
+get:
+	go get
+
+build: format get
+	CGO_ENABLED=0 GOOS=$(TARGETOS) GOARCH=$(TARGETARCH) go build -v -o kbot -ldflags "-X=github.com/denvasyliev/kbot/cmd.appVersion=$(VERSION)"
 
 image:
-	@docker build -t $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH) .
+	docker build -t $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH) .
+
+push:
+	docker push $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)
 
 clean:
-	@rm -rf kbot
-	@docker rmi $(REGISTRY)/$(APP):$(VERSION)-$(TARGETARCH)
+	rm -rf kbot
+
