@@ -1,5 +1,5 @@
 APP := $(shell basename $(shell git remote get-url origin))
-REGISTRY := denvasyilev
+REGISTRY := avojarot
 VERSION=$(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")-$(shell git rev-parse --short HEAD)
 TARGETOS=linux # linux darwin windows
 TARGETARCH=amd64 # amd64 arm64
