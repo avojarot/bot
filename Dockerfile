@@ -1,21 +1,12 @@
-# Use the specified base image
-FROM quay.io/projectquay/golang:1.20 AS builder
+FROM quay.io/projectquay/golang:1.20 as builder
 
-# Set build arguments for the target platform
-ARG TARGETOS
-ARG TARGETARCH
-
-# Set the working directory
-WORKDIR /app
-
-# Copy the source code
+WORKDIR /go/src/app
 COPY . .
+ARG TARGETARCH
+RUN make build TARGETARCH=$TARGETARCH
 
-# Build the application
-RUN GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o /app/main .
-
-# Final stage - creating the output container
-FROM busybox AS final
-WORKDIR /app
-COPY --from=builder /app/main .
-ENTRYPOINT ["/app/main"]
+FROM scratch
+WORKDIR /
+COPY --from=builder /go/src/app/kbot .
+COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+ENTRYPOINT ["./kbot", "start"]

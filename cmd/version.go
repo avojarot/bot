@@ -1,6 +1,5 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
+Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 */
 package cmd
 
@@ -10,8 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// versionCmd represents the version command
+// appVersion Application Version
 var appVersion = "Version"
+
+// versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "A brief description of your command",
